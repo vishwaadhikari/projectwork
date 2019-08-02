@@ -79,28 +79,39 @@ error_reporting(0);
       <div class="col-md-9 col-md-push-3">
         <div class="result-sorting-wrapper">
           <div class="sorting-count">
+          
 <?php 
 //Query for Listing count
-$brand=$_POST['brand'];
-$fueltype=$_POST['fueltype'];
-$sql = "SELECT id from tblvehicles where tblvehicles.VehiclesBrand=:brand and tblvehicles.FuelType=:fueltype";
-$query = $dbh -> prepare($sql);
-$query -> bindParam(':brand',$brand, PDO::PARAM_STR);
-$query -> bindParam(':fueltype',$fueltype, PDO::PARAM_STR);
+// $fueltype=$_POST['fueltype'];
+$sql = "SELECT id from tblvehicles 
+        where tblvehicles.VehiclesBrand=:brand
+        or tblvehicles.VehiclesTitle LIKE :searchName 
+        or tblvehicles.VehiclesOverview LIKE :searchName";
+$query = $dbh->prepare($sql);
+$query->bindParam(':brand',$brand, PDO::PARAM_STR);
+$query->bindValue(':searchName', '%' . $_GET['searchName'] . '%' , PDO::PARAM_STR);
+
 $query->execute();
+
 $results=$query->fetchAll(PDO::FETCH_OBJ);
+
 $cnt=$query->rowCount();
 ?>
+
 <p><span><?php echo htmlentities($cnt);?> Listings</span></p>
 </div>
 </div>
 
 <?php 
 
-$sql = "SELECT tblvehicles.*,tblbrands.BrandName,tblbrands.id as bid  from tblvehicles join tblbrands on tblbrands.id=tblvehicles.VehiclesBrand where tblvehicles.VehiclesBrand=:brand and tblvehicles.FuelType=:fueltype";
+$sql = "SELECT tblvehicles.*,tblbrands.BrandName,tblbrands.id as bid  from tblvehicles 
+        join tblbrands on tblbrands.id=tblvehicles.VehiclesBrand 
+        where tblvehicles.VehiclesBrand=:brand 
+        or tblvehicles.VehiclesTitle LIKE :searchName 
+        or tblvehicles.VehiclesOverview LIKE :searchName";
 $query = $dbh -> prepare($sql);
 $query -> bindParam(':brand',$brand, PDO::PARAM_STR);
-$query -> bindParam(':fueltype',$fueltype, PDO::PARAM_STR);
+$query->bindValue(':searchName', '%' . $_GET['searchName'] . '%' , PDO::PARAM_STR);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
 $cnt=1;
@@ -134,31 +145,35 @@ foreach($results as $result)
           <div class="sidebar_filter">
             <form action="#" method="get">
               <div class="form-group select">
-                <select class="form-control">
+                <select class="form-control" name="brand">
                   <option>Select Catagory</option>
 
                   <?php $sql = "SELECT * from  tblbrands ";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{       ?>  
-<option value="<?php echo htmlentities($result->id);?>"><?php echo htmlentities($result->BrandName);?></option>
-<?php }} ?>
+                    $query = $dbh -> prepare($sql);
+                    $query->execute();
+                    $results=$query->fetchAll(PDO::FETCH_OBJ);
+                    $cnt=1;
+                    if($query->rowCount() > 0)
+                    {
+                    foreach($results as $result)
+                    {       
+                  ?>  
+                  <option value="<?php echo htmlentities($result->id);?>"><?php echo htmlentities($result->BrandName);?></option>
+                  <?php }} ?>
                  
                 </select>
               </div>
-              <div class="form-group select">
+              <div class="form-group">
+                <input class="form-control" type="text" name="searchName" Placeholder = "search car"/>
+              </div>
+              <!-- <div class="form-group select">
                 <select class="form-control">
                   <option>Select Fuel Type</option>
-<option value="Petrol">Petrol</option>
-<option value="Diesel">Diesel</option>
-<option value="CNG">CNG</option>
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="CNG">CNG</option>
                 </select>
-              </div>
+              </div> -->
              
               <div class="form-group">
                 <button type="submit" class="btn btn-block"><i class="fa fa-search" aria-hidden="true"></i> Search Vehicle</button>
@@ -173,15 +188,19 @@ foreach($results as $result)
           </div>
           <div class="recent_addedcars">
             <ul>
-<?php $sql = "SELECT tblvehicles.*,tblbrands.BrandName,tblbrands.id as bid  from tblvehicles join tblbrands on tblbrands.id=tblvehicles.VehiclesBrand order by id desc limit 4";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{  ?>
+              <?php $sql = "SELECT tblvehicles.*,tblbrands.BrandName,tblbrands.id as bid  
+                            from tblvehicles join tblbrands 
+                            on tblbrands.id=tblvehicles.VehiclesBrand 
+                            order by id desc limit 4";
+              $query = $dbh -> prepare($sql);
+              $query->execute();
+              $results=$query->fetchAll(PDO::FETCH_OBJ);
+              $cnt=1;
+              if($query->rowCount() > 0)
+              {
+              foreach($results as $result)
+              {
+              ?>
 
               <li class="gray-bg">
                 <div class="recent_post_img"> <a href="vehical-details.php?vhid=<?php echo htmlentities($result->id);?>"><img src="admin/img/vehicleimages/<?php echo htmlentities($result->Vimage1);?>" alt="image"></a> </div>

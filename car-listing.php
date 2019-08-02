@@ -125,7 +125,7 @@ foreach($results as $result)
             <h5><i class="fa fa-filter" aria-hidden="true"></i> Find Your Vehicle </h5>
           </div>
           <div class="sidebar_filter">
-            <form action="search-carresult.php" method="post">
+            <form action="search-carresult.php" method="get">
               <div class="form-group select">
                 <select class="form-control" name="brand">
                   <option>Vehicle Category</option>
@@ -144,8 +144,9 @@ foreach($results as $result)
                  
                 </select>
               </div>
-              
-             
+              <div class="form-group">
+                <input class="form-control" type="text" name="searchName" Placeholder = "search car"/>
+              </div>
               <div class="form-group">
                 <button type="submit" class="btn btn-block"><i class="fa fa-search" aria-hidden="true"></i> Search Vehicle</button>
               </div>
